@@ -5,9 +5,9 @@ const getAllDepartment = () => {
   return http.get(path);
 };
 
-const addStaff = (realname, email, password) => {
+const addStaff = (realname, email, password, department_id = null) => {
   const path = "/staff/staff";
-  return http.post(path, { realname, email, password });
+  return http.post(path, { realname, email, password, department_id });
 };
 
 const getStaffList = (page = 1, size = 10, params) => {
@@ -28,10 +28,16 @@ const downloadStaffs = (pks) => {
   return http.downloadFile(path, { pks: JSON.stringify(pks) });
 };
 
+const deleteStaff = (staff_id) => {
+  const path = "/staff/staff/" + staff_id;
+  return http.delete(path);
+};
+
 export default {
   getAllDepartment,
   addStaff,
   getStaffList,
   updateStaffStatus,
   downloadStaffs,
+  deleteStaff,
 };

@@ -1,5 +1,5 @@
 <script setup name="informlist">
-import { ref, reactive, onMounted } from "vue"
+import { ref, reactive, onMounted, watch } from "vue"
 import OAMain from "@/components/OAMain.vue";
 import OADialog from "@/components/OADialog.vue";
 import OAPagination from "@/components/OAPagination.vue";
@@ -21,15 +21,25 @@ let handleIndex = 0
 onMounted(async () => {
     try {
         let data = await informHttp.getInformList(1)
-        // data = {count: 10, next: , previous: , results: []}
-        pagination.total = data.count
-        informs.value = data.results
-        console.log(data.results);
+        // data = {total: 10, page: 1, items: []}
+        pagination.total = data.total
+        informs.value = data.items
+        console.log(data.items);
     } catch (detail) {
         ElMessage.error(detail)
     }
 })
 
+
+watch(() => pagination.page, async (newPage) => {
+    try {
+        let data = await informHttp.getInformList(newPage)
+        pagination.total = data.total
+        informs.value = data.items
+    } catch (detail) {
+        ElMessage.error(detail)
+    }
+})
 
 const onShowDialog = (index) => {
     handleIndex = index
@@ -84,7 +94,7 @@ const onDeleteInform = async () => {
                 </el-table-column>
                 <el-table-column label="Action">
                     <template #default="scope">
-                        <el-button v-if="scope.row.author.uid == authStore.user.uid" @click="onShowDialog(scope.$index)"
+                        <el-button v-if="scope.row.author.id == authStore.user.id || authStore.user.is_superuser" @click="onShowDialog(scope.$index)"
                             type="danger" icon="Delete" />
                         <el-button v-else disabled type="default">None</el-button>
                     </template>

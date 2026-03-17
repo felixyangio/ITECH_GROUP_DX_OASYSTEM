@@ -17,9 +17,10 @@ const routes = [
     path: "/",
     name: "frame",
     component: frame,
+    redirect: "/home",
     children: [
       {
-        path: "/",
+        path: "home",
         name: "home",
         component: home,
         meta: {
@@ -59,8 +60,7 @@ const routes = [
               icon: "User",
               text: "Team Attendance",
               permissions: [
-                PermissionChoices.Boarder,
-                PermissionChoices.Leader,
+                PermissionChoices.Superuser,
               ],
               opt: "|",
             },
@@ -122,7 +122,7 @@ const routes = [
         meta: {
           icon: "Avatar",
           text: "Employee Management",
-          permissions: [PermissionChoices.Boarder, PermissionChoices.Leader],
+          permissions: [PermissionChoices.Boarder, PermissionChoices.Leader, PermissionChoices.Superuser],
           opt: "|",
         },
         children: [
@@ -134,8 +134,7 @@ const routes = [
               icon: "CirclePlusFilled",
               text: "Add Employee",
               permissions: [
-                PermissionChoices.Boarder,
-                PermissionChoices.Leader,
+                PermissionChoices.Superuser,
               ],
               opt: "|",
             },
@@ -150,6 +149,7 @@ const routes = [
               permissions: [
                 PermissionChoices.Boarder,
                 PermissionChoices.Leader,
+                PermissionChoices.Superuser,
               ],
               opt: "|",
             },

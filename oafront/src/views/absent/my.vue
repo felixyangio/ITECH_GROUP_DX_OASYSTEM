@@ -84,7 +84,8 @@ const onSubmitAbsent = () => {
         absent_type_id: absentForm.absent_type_id,
         start_date: absentForm.date_range[0],
         end_date: absentForm.date_range[1],
-        request_content: absentForm.request_content
+        request_content: absentForm.request_content,
+        responder_id: responder.id || null
       }
       try {
         let absent = await absentHttp.applyAbsent(data)
@@ -126,7 +127,11 @@ onMounted(async () => {
     <el-card>
       <el-table :data="absents" style="width: 100%">
         <el-table-column prop="title" label="Title" />
-        <el-table-column prop="absent_type.name" label="Leave Type" />
+        <el-table-column label="Leave Type">
+          <template #default="{ row }">
+            {{ row.absent_type_name }}
+          </template>
+        </el-table-column>
         <el-table-column prop="request_content" label="Leave Reason" />
         <el-table-column prop="create_time" label="Create Time" width="200">
           <template #default="scope">
@@ -137,8 +142,7 @@ onMounted(async () => {
         <el-table-column prop="end_date" label="End Date" />
         <el-table-column label="Approver">
           <template #default="scope">
-            <!-- {{ scope.row.responder_str }} -->
-            {{ responder_str }}
+            {{ scope.row.responder_name || responder_str }}
           </template>
         </el-table-column>
 
@@ -152,7 +156,7 @@ onMounted(async () => {
         </el-table-column>
       </el-table>
       <template #footer>
-        <OAPagination v-model:page="pagination.page" :total="pagination.total"></OAPagination>
+        <OAPagination v-model="pagination.page" :total="pagination.total"></OAPagination>
       </template>
     </el-card>
 

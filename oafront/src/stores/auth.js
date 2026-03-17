@@ -9,6 +9,7 @@ export const PermissionChoices = {
   Staff: 0b000,
   Boarder: 0b001,
   Leader: 0b010,
+  Superuser: 0b100,
 };
 
 export const useAuthStore = defineStore("auth", () => {
@@ -63,14 +64,19 @@ export const useAuthStore = defineStore("auth", () => {
     let _permissions = PermissionChoices.Staff;
     if (is_logined.value) {
       // Check whether the user is a board member
-      if (user.value.department.name == "Board of Directors") {
+      if (user.value.department?.name == "Board of Directors") {
         // 0b000 | 0b001 = 0b001
         _permissions |= PermissionChoices.Boarder;
       }
 
       // Check whether the user is a leader
-      if (user.value.department.leader_id == user.value.uid) {
+      if (user.value.department?.leader_id == user.value.uid) {
         _permissions |= PermissionChoices.Leader;
+      }
+
+      // Check whether the user is a superuser
+      if (user.value.is_superuser) {
+        _permissions |= PermissionChoices.Superuser;
       }
     }
     return _permissions;

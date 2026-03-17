@@ -1,6 +1,6 @@
 <script setup name="subabsent">
 import OAPageHeader from "@/components/OAPageHeader.vue";
-import { ref, reactive, onMounted } from "vue"
+import { ref, reactive, onMounted, watch } from "vue"
 import absentHttp from "@/api/absentHttp";
 import { ElMessage } from "element-plus";
 import timeFormatter from "@/utils/timeFormatter";
@@ -26,14 +26,22 @@ let dialogVisible = ref(false)
 let absentFormRef = ref()
 let handleIndex = null
 
-onMounted(async () => {
+async function fetchAbsents(page) {
   try {
-    let data = await absentHttp.getSubAbsents()
-    pagination.total = data.total
+    let data = await absentHttp.getSubAbsents(page)
+    pagination.total = data.count
     absents.value = data.results
   } catch (detail) {
     ElMessage.error(detail)
   }
+}
+
+onMounted(async () => {
+  fetchAbsents(1)
+})
+
+watch(() => pagination.page, (newPage) => {
+  fetchAbsents(newPage)
 })
 
 const onShowDialog = (index) => {
@@ -85,10 +93,14 @@ const onCancelProcess = () => {
         <el-table-column prop="title" label="Title" />
         <el-table-column label="Applicant">
           <template #default="{ row }">
-            {{ '[' + row.requester.department.name + ']' + row.requester.realname }}
+            {{ '[' + (row.applicant_info?.department?.name || '') + ']' + (row.applicant_info?.realname || row.applicant_name) }}
           </template>
         </el-table-column>
-        <el-table-column prop="absent_type.name" label="Leave Type" />
+        <el-table-column label="Leave Type">
+          <template #default="{ row }">
+            {{ row.absent_type_name }}
+          </template>
+        </el-table-column>
         <el-table-column prop="request_content" label="Leave Reason" />
         <el-table-column prop="create_time" label="Create Time" width="200">
           <template #default="scope">
@@ -97,7 +109,11 @@ const onCancelProcess = () => {
         </el-table-column>
         <el-table-column prop="start_date" label="Start Date" />
         <el-table-column prop="end_date" label="End Date" />
-        <el-table-column prop="responder.realname" label="Approver" />
+        <el-table-column label="Approver">
+          <template #default="{ row }">
+            {{ row.responder_name || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="response_content" label="Feedback" />
         <el-table-column label="Status">
           <template #default="scope">
@@ -114,7 +130,7 @@ const onCancelProcess = () => {
         </el-table-column>
       </el-table>
       <template #footer>
-        <OAPagination v-model:page="pagination.page" :total="pagination.total"></OAPagination>
+        <OAPagination v-model="pagination.page" :total="pagination.total"></OAPagination>
       </template>
     </el-card>
   </OAMain>

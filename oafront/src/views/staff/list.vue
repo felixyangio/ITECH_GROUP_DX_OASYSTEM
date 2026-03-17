@@ -17,6 +17,7 @@ let pagination = reactive({
 })
 let page_size = ref(10)
 let dialogVisible = ref(false)
+let deleteDialogVisible = ref(false)
 let staffForm = reactive({
     status: 1
 })
@@ -35,9 +36,9 @@ async function fetchStaffList(page, page_size) {
     try {
         // Get employee list
         let data = await staffHttp.getStaffList(page, page_size, filterForm)
-        pagination.total = data.count
+        pagination.total = data.total
         pagination.page = page
-        staffs.value = data.results
+        staffs.value = data.items
     } catch (detail) {
         ElMessage.error(detail)
     }
@@ -48,7 +49,7 @@ onMounted(async () => {
 
     try {
         let data = await staffHttp.getAllDepartment()
-        departments.value = data.results;
+        departments.value = data;
     } catch (detail) {
         ElMessage.error(detail)
     }
@@ -76,7 +77,7 @@ const onEditStaff = (index) => {
 const onSubmitEditStaff = async () => {
     let staff = staffs.value[handleIndex]
     try {
-        let newstaff = await staffHttp.updateStaffStatus(staff.uid, staffForm.status)
+        let newstaff = await staffHttp.updateStaffStatus(staff.id, staffForm.status)
         ElMessage.success("Employee status updated successfully.")
         dialogVisible.value = false;
         staffs.value.splice(handleIndex, 1, newstaff)
@@ -89,41 +90,23 @@ const onSearch = () => {
     fetchStaffList(1, page_size.value)
 }
 
-const onDownload = async () => {
-    let rows = tableRef.value.getSelectionRows()
-    if(!rows || rows.length==0){
-        ElMessage.info('Employee status updated successfully!')
-        return;
-    }
-    try{
-        let response = await staffHttp.downloadStaffs(rows.map(row => row.uid))
-        // Create a URL object from the returned binary data.
-        let href = URL.createObjectURL(response.data)
-        const a = document.createElement("a")
-        a.href = href
-        a.setAttribute('download', 'Employee Information.xlsx')
-       
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        // Revoke the URL object
-        URL.revokeObjectURL(href)
-    }catch(detail){
+const onShowDeleteDialog = (index) => {
+    handleIndex = index
+    deleteDialogVisible.value = true
+}
+
+const onDeleteStaff = async () => {
+    let staff = staffs.value[handleIndex]
+    try {
+        await staffHttp.deleteStaff(staff.id)
+        staffs.value.splice(handleIndex, 1)
+        deleteDialogVisible.value = false
+        ElMessage.success('Employee deleted successfully.')
+    } catch (detail) {
         ElMessage.error(detail)
     }
 }
-
-const onUploadSuccess = () => {
-    ElMessage.success("Employees uploaded successfully.")
-    // Refetch the employee data for the first page.
-    fetchStaffList(1, page_size.value)
-}
-
-const onUploadFail = (error) => {
-    const detail = JSON.parse(error.message).detail
-    ElMessage.error(detail)
-}
-
+     
 </script>
 
 <template>
@@ -136,6 +119,9 @@ const onUploadFail = (error) => {
                 </el-radio-group>
             </el-form-item>
         </el-form>
+    </OADialog>
+    <OADialog title="Confirm Delete" v-model="deleteDialogVisible" @submit="onDeleteStaff">
+        <span>Are you sure you want to delete this employee? This action cannot be undone.</span>
     </OADialog>
     <OAMain title="Employee List">
         <el-card>
@@ -156,22 +142,6 @@ const onUploadFail = (error) => {
                 <el-form-item>
                     <el-button type="primary" icon="Search" @click="onSearch"></el-button>
                 </el-form-item>
-                <el-form-item>
-                    <el-button type="danger" icon="Download" @click="onDownload">Download</el-button>
-                </el-form-item>
-
-                <el-form-item>
-                    <el-upload
-                        :action="BASE_URL+'/staff/upload'"
-                        :headers="{Authorization: 'JWT '+authStore.token}"
-                        :on-success="onUploadSuccess"
-                        :on-error="onUploadFail"
-                        :show-file-list="false"
-                        :auto-upload="true"
-                        accept=".xlsx, .xls">
-                        <el-button type="danger" icon="Upload">Upload</el-button>
-                    </el-upload>
-                </el-form-item>
             </el-form>
         </el-card>
         <el-card>
@@ -184,20 +154,21 @@ const onUploadFail = (error) => {
                 <el-table-column prop="email" label="Email"></el-table-column>
                 <el-table-column label="Join Date">
                     <template #default="scope">
-                        {{ timeFormatter.stringFromDate(scope.row.date_joined) }}
+                        {{ scope.row.date_joined ? timeFormatter.stringFromDate(scope.row.date_joined) : '-' }}
                     </template>
                 </el-table-column>
                 <el-table-column prop="department.name" label="Department"></el-table-column>
                 <el-table-column label="Status">
                     <template #default="scope">
                         <el-tag v-if="scope.row.status == 1" type="success">Active</el-tag>
-                        <el-tag v-else-if="scope.row.status == 2" type="warning">Inactive</el-tag>
+                        <el-tag v-else-if="scope.row.status == 0" type="warning">Inactive</el-tag>
                         <el-tag v-else type="danger">Locked</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column label="Actions">
                     <template #default="scope">
-                        <el-button type="primary" icon="Edit" circle @click="onEditStaff(scope.$index)"></el-button>
+                        <el-button v-if="authStore.user.is_superuser" type="primary" icon="Edit" circle @click="onEditStaff(scope.$index)"></el-button>
+                        <el-button v-if="authStore.user.is_superuser" type="danger" icon="Delete" circle @click="onShowDeleteDialog(scope.$index)"></el-button>
                     </template>
                 </el-table-column>
             </el-table>

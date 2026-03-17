@@ -30,48 +30,77 @@ let departments = ref([])
 ////////////// wangEditor //////////////
 const editorRef = shallowRef()
 
-console.log(import.meta.env)
-
-const toolbarConfig = {}
+// Add uploadFile button into the toolbar
+const toolbarConfig = {
+  insertKeys: {
+    index: 22,
+    keys: ['uploadFile']
+  }
+}
 const editorConfig = {
   placeholder: "Please enter content...",
 
   MENU_CONF: {
     uploadImage: {
-      server: `${import.meta.env.VITE_BASE_URL}/image/upload`,
-      // 'http://127.0.0.1:8000/image/upload',
+      server: `${import.meta.env.VITE_BASE_URL}/inform/image/upload`,
       fieldName: 'image',
-      maxFileSize: 0.5 * 1024 * 1024,
-      maxNumberOfFiles: 10,
+      maxFileSize: 25 * 1024 * 1024,
+      maxNumberOfFiles: 20,
       allowedFileTypes: ['image/*'],
       headers: {
         Authorization: "JWT " + authStore.token
       },
-      timeout: 6 * 1000, // 6 s,
+      timeout: 30 * 1000,
 
       customInsert(res, insertFn) {
         if (res.errno == 0) {
-          // let data = res.data;
           const data = res.data[0]
           let url = import.meta.env.VITE_BASE_URL + data.url
           let href = import.meta.env.VITE_BASE_URL + data.href
           let alt = data.alt;
-          // Get url, alt, and href from response and insert the image
           insertFn(url, alt, href)
         } else {
           ElMessage.error(res.message)
         }
       },
-      // Triggered when a single file upload fails
       onFailed(file, res) {
-        console.log(`${file.name} upload failed`, res)
+        ElMessage.error(`${file.name} upload failed: ${res.message || ''}`)
       },
-      // Triggered when upload error occurs or timeout happens
       onError(file, err, res) {
-        if (file.size > 0.5 * 1024 * 1024) {
-          ElMessage.error('Image size cannot exceed 0.5MB.')
+        if (file.size > 25 * 1024 * 1024) {
+          ElMessage.error('Image size cannot exceed 25MB.')
         } else {
-          ElMessage.error('Invalid image format.')
+          ElMessage.error('Image upload failed.')
+        }
+      },
+    },
+    uploadFile: {
+      server: `${import.meta.env.VITE_BASE_URL}/inform/file/upload`,
+      fieldName: 'file',
+      maxFileSize: 25 * 1024 * 1024,
+      maxNumberOfFiles: 10,
+      allowedFileTypes: [],
+      headers: {
+        Authorization: "JWT " + authStore.token
+      },
+      timeout: 30 * 1000,
+
+      customInsert(res, insertFn) {
+        if (res.errno == 0) {
+          let url = import.meta.env.VITE_BASE_URL + res.data.url
+          insertFn(url, res.data.name, url)
+        } else {
+          ElMessage.error(res.message)
+        }
+      },
+      onFailed(file, res) {
+        ElMessage.error(`${file.name} upload failed: ${res.message || ''}`)
+      },
+      onError(file, err, res) {
+        if (file.size > 25 * 1024 * 1024) {
+          ElMessage.error('File size cannot exceed 25MB.')
+        } else {
+          ElMessage.error('File upload failed.')
         }
       },
     }
@@ -90,12 +119,62 @@ onBeforeUnmount(() => {
 const handleCreated = (editor) => {
   editorRef.value = editor // Store the editor instance
 }
+
+// Handle drag-and-drop of non-image files onto the editor
+const onEditorDrop = (e) => {
+  const files = Array.from(e.dataTransfer?.files || [])
+  if (!files.length) return
+  const nonImages = files.filter(f => !f.type.startsWith('image/'))
+  if (!nonImages.length) return  // let wangEditor handle images natively
+
+  e.preventDefault()
+  e.stopPropagation()
+
+  nonImages.forEach(async (file) => {
+    if (file.size > 25 * 1024 * 1024) {
+      ElMessage.error(`${file.name} exceeds 25MB limit.`)
+      return
+    }
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BASE_URL}/inform/file/upload`, {
+        method: 'POST',
+        headers: { Authorization: 'JWT ' + authStore.token },
+        body: formData
+      })
+      const data = await res.json()
+      if (data.errno === 0) {
+        const url = import.meta.env.VITE_BASE_URL + data.data.url
+        editorRef.value.insertNode({
+          type: 'link',
+          url,
+          target: '_blank',
+          children: [{ text: data.data.name }]
+        })
+      } else {
+        ElMessage.error(data.message || `${file.name} upload failed.`)
+      }
+    } catch {
+      ElMessage.error(`${file.name} upload failed.`)
+    }
+  })
+}
 ////////////// wangEditor //////////////
 
 onMounted(async () => {
   try {
     let data = await staffHttp.getAllDepartment()
-    departments.value = data.results
+    if (authStore.user.is_superuser) {
+      // Superuser can choose any department
+      departments.value = data
+    } else {
+      // Regular user can only choose their own department
+      const userDeptId = authStore.user.department?.id
+      departments.value = userDeptId
+        ? data.filter(d => d.id === userDeptId)
+        : []
+    }
   } catch (detail) {
     ElMessage.error(detail)
   }
@@ -104,10 +183,13 @@ onMounted(async () => {
 const onSubmit = () => {
   formRef.value.validate(async (valid, fields) => {
     if (valid) {
-      console.log(informForm);
       try {
         let data = await informHttp.publishInform(informForm)
-        console.log(data);
+        ElMessage.success('Notification published successfully.')
+        informForm.title = ''
+        informForm.content = ''
+        informForm.department_ids = []
+        editorRef.value.setHtml('')
       } catch (detail) {
         ElMessage.error(detail)
       }
@@ -132,7 +214,7 @@ const onSubmit = () => {
           </el-select>
         </el-form-item>
         <el-form-item label="Content" :label-width="formLabelWidth" prop="content">
-          <div style="border: 1px solid #ccc; width: 100%;">
+          <div style="border: 1px solid #ccc; width: 100%;" @drop="onEditorDrop" @dragover.prevent>
             <Toolbar style="border-bottom: 1px solid #ccc" :editor="editorRef" :defaultConfig="toolbarConfig"
               :mode="mode" />
             <Editor style="height: 500px; overflow-y: hidden;" v-model="informForm.content"

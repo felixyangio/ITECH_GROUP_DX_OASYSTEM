@@ -16,7 +16,7 @@ let props = defineProps({
 const emits = defineEmits(['cancel', 'submit'])
 
 const onCancel = () => {
-  // dialogVisible.value = false
+  dialogVisible.value = false
   emits('cancel');
 }
 

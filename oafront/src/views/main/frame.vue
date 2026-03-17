@@ -138,7 +138,7 @@ const onSubmit = () => {
                 <el-dropdown>
                     <span class="el-dropdown-link">
                         <el-avatar :size="30" icon="UserFilled" />
-                        <span style="margin-left: 10px;">[{{ displayUser.department.name }}]{{
+                        <span style="margin-left: 10px;">[{{ displayUser.department?.name }}]{{
                             displayUser.realname
                             }}</span>
                         <el-icon class="el-icon--right">
