@@ -70,6 +70,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://group-dx-oafront.onrender.com",
     # "https://itech-oa-frontend.vercel.app",
     # "https://itech-group-dx-oa-system.vercel.app",
+    "http://localhost:5175",
+    "http://127.0.0.1:5175",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True
