@@ -67,6 +67,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "https://itech-group-dx-oasystem.vercel.app",
     "https://itech-group-dx-oasystem-p6tvps67o-felixyangios-projects.vercel.app",
+    "https://group-dx-oafront.onrender.com",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
