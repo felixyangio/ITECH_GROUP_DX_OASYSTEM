@@ -19,14 +19,7 @@ __pycache__/
 *.pyd
 .Python
 
-# Virtual environment
-venv/
-env/
-.venv/
-
 # Django
-oaback/db.sqlite3
-oaback/media/
 oaback/*.log
 
 # IDE
