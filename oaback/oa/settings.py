@@ -24,11 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-temp-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [
-    "itech-oa-backend.onrender.com",
-    "127.0.0.1",
-    "localhost",
-]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -71,21 +67,20 @@ MIDDLEWARE = [
 #     "http://localhost:5173",
 #     "http://127.0.0.1:5173",
 # ]
-#
-# CORS_ALLOWED_ORIGIN_REGEXES = [
-#     r"^https://itech-group-dx-oasystem.*\.vercel\.app$",
-# ]
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-
-CSRF_TRUSTED_ORIGINS = [
+CORS_ALLOWED_ORIGINS = [
     "https://group-dx-oafront.onrender.com",
-    "https://itech-group-dx-oasystem.vercel.app",
-    "https://itech-group-dx-oasystem-p6tvps67o-felixyangios-projects.vercel.app",
+    # "https://itech-oa-frontend.vercel.app",
+    # "https://itech-group-dx-oa-system.vercel.app",
 ]
 
+# CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_CREDENTIALS = True
 
+# CSRF_TRUSTED_ORIGINS = [
+#     "https://group-dx-oafront.onrender.com",
+#     "https://itech-group-dx-oasystem.vercel.app",
+#     "https://itech-group-dx-oasystem-p6tvps67o-felixyangios-projects.vercel.app",
+# ]
 
 ROOT_URLCONF = 'oa.urls'
 
