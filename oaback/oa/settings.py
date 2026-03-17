@@ -64,19 +64,19 @@ MIDDLEWARE = [
 ]
 
 # CORS: allow Vue frontend
-CORS_ALLOWED_ORIGINS = [
-    "https://itech-group-dx-oasystem.vercel.app",
-    "https://itech-group-dx-oasystem-p6tvps67o-felixyangios-projects.vercel.app",
-    "https://group-dx-oafront.onrender.com",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     # "https://itech-group-dx-oasystem.vercel.app",
+#     # "https://itech-group-dx-oasystem-p6tvps67o-felixyangios-projects.vercel.app",
+#     "https://group-dx-oafront.onrender.com",
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+# ]
+#
+# CORS_ALLOWED_ORIGIN_REGEXES = [
+#     r"^https://itech-group-dx-oasystem.*\.vercel\.app$",
+# ]
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://itech-group-dx-oasystem.*\.vercel\.app$",
-]
-
-# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
