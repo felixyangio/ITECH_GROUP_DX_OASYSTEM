@@ -1,6 +1,6 @@
 # OA System — Project Startup Guide
 
-## Project Overview
+## Project Overview (Online Link: https://group-dx-oafront.onrender.com)
 
 A full-stack enterprise OA (Office Automation) system with separated frontend and backend:
 
@@ -21,6 +21,7 @@ A full-stack enterprise OA (Office Automation) system with separated frontend an
 | npm | 9+ |
 
 ---
+# HERE ARE LOCALLIZATION RUNNING GUIDES (PS: IF YOU DON'T WANT RUN BY THE ONLINE LINK MENTIONED ABOVE, PLEASE FELLOW THESE STEPS BELOW)
 
 ## 1. Backend Setup
 
