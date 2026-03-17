@@ -51,7 +51,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -76,11 +75,11 @@ CORS_ALLOWED_ORIGINS = [
 # CORS_ALLOW_ALL_ORIGINS = True
 # CORS_ALLOW_CREDENTIALS = True
 
-# CSRF_TRUSTED_ORIGINS = [
-#     "https://group-dx-oafront.onrender.com",
-#     "https://itech-group-dx-oasystem.vercel.app",
-#     "https://itech-group-dx-oasystem-p6tvps67o-felixyangios-projects.vercel.app",
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    "https://group-dx-oafront.onrender.com",
+    "https://itech-group-dx-oasystem.vercel.app",
+    "https://itech-group-dx-oasystem-p6tvps67o-felixyangios-projects.vercel.app",
+]
 
 ROOT_URLCONF = 'oa.urls'
 
