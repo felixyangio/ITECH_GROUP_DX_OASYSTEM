@@ -79,6 +79,14 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://group-dx-oafront.onrender.com",
+    "https://itech-group-dx-oasystem.vercel.app",
+    "https://itech-group-dx-oasystem-p6tvps67o-felixyangios-projects.vercel.app",
+]
+
+
+
 ROOT_URLCONF = 'oa.urls'
 
 TEMPLATES = [
