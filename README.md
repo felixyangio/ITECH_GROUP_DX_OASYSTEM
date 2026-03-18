@@ -8,7 +8,7 @@ password: admin123\
 email：DX@oa.com\
 password: DX123456\
 email：Test@oa.com\
-password: Test123\
+password: Test123
 
 A full-stack enterprise OA (Office Automation) system with separated frontend and backend:
 
