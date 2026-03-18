@@ -1,6 +1,14 @@
 # OA System — Project Startup Guide
 
 ## Project Overview (Online Link: https://group-dx-oafront.onrender.com)
+**admin account**
+email：admin@oa.com
+password: admin123
+**staff account**
+email：DX@oa.com
+password: DX123456
+email：Test@oa.com
+password: Test123
 
 A full-stack enterprise OA (Office Automation) system with separated frontend and backend:
 
